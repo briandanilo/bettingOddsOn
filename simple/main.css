@@ -1,0 +1,35 @@
+body {
+  margin: 20px;
+}
+
+.btn-group {
+  box-sizing: border-box;
+}
+
+.btn-default {
+  width: 50px;
+}
+
+.calcContainer {
+  min-width: 300px;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.calcDisplay {
+  border: 1px solid lightgrey;
+  line-height: 45px;
+}
+
+.calcDisplay p{
+  margin: 0px;
+  height: 50px;
+}
+
+.clearBtnContainer button{
+  min-width: 200px;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
