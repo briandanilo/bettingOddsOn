@@ -1,134 +1,186 @@
-var runningInput="";
+// requirejs(["node_modules/fractional"], function(fractional) {
+// });
 
 
-document.querySelector('.btn-group').addEventListener("click",function(e){
-  userInput(e.path["0"].innerText);
+document.querySelector('#convert-btn').addEventListener("click",function(e){
+
+  e.preventDefault();
+
+  var away = document.querySelector('#away-odds').value;
+  var home = document.querySelector('#home-odds').value;
+
+  var awayImplied = convert(away,home,"awayImplied");
+  var homeImplied = convert(away,home,"homeImplied");
+  var awayUsaWithJuice = convert(away,home,"awayUsaWithJuice");
+  var homeUsaWithJuice = convert(away,home,"homeUsaWithJuice");
+  var awayDecimalWithJuice = convert(away,home,"awayDecimalWithJuice");
+  var homeDecimalWithJuice = convert(away,home,"homeDecimalWithJuice");
+  var awayFractionalWithJuice = convert(away,home,"awayFractionalWithJuice");
+  var homeFractionalWithJuice = convert(away,home,"homeFractionalWithJuice");
+  var awayUsaNoJuice = convert(away,home,"awayUsaNoJuice");
+  var homeUsaNoJuice = convert(away,home,"homeUsaNoJuice");
+  var awayDecimalNoJuice = convert(away,home,"awayDecimalNoJuice");
+  var homeDecimalNoJuice = convert(away,home,"homeDecimalNoJuice");
+  var awayFractionalNoJuice = convert(away,home,"awayFractionalNoJuice");
+  var homeFractionalNoJuice = convert(away,home,"homeFractionalNoJuice");
+
+
+
+
+  var table = document.querySelector('.table');
+  var header = table.createTHead();
+
+  var row = header.insertRow(0);
+
+  var cell0 = row.insertCell(0);
+  var cell1 = row.insertCell(1);
+  var cell2 = row.insertCell(2);
+
+  cell0.innerHTML = "";
+  cell1.innerHTML = "<b>Away Team</b>";
+  cell2.innerHTML = "<b>Home Team</b>";
+
+  var row = table.insertRow(-1);
+
+  var cell0 = row.insertCell(0);
+  var cell1 = row.insertCell(1);
+  var cell2 = row.insertCell(2);
+
+  cell0.innerHTML = "Implied Probability";
+  cell1.innerHTML = awayImplied.toFixed(2);
+  cell2.innerHTML = homeImplied.toFixed(2);
+
+  var row = table.insertRow(-1);
+
+  var cell0 = row.insertCell(0);
+  var cell1 = row.insertCell(1);
+  var cell2 = row.insertCell(2);
+
+  cell0.innerHTML = "No Vig (American)";
+  cell1.innerHTML = awayUsaNoJuice;
+  cell2.innerHTML = homeUsaNoJuice;
+
+
 });
 
-document.querySelector('.clearBtnContainer').addEventListener("click",function(e){
-  userInput(e.path["0"].innerText);
-});
 
-function userInput(input) {
 
-    //clear placeholder text
-    if (document.querySelector('.calcDisplayText').textContent=="Do Math!")
-      document.querySelector('.calcDisplayText').textContent="";
 
-    //display latest input
-    document.querySelector('.calcDisplayText').textContent += input;
 
-    //add latest input to running total unless user hit equal or clear btn
-    //if user hit equal, do math and return answer
-    if (input=="CLEAR")
-    {
-      runningInput = "";
-      document.querySelector('.calcDisplayText').textContent="";
-    }
-    else if (input != "=")
-      runningInput += input;
+
+function convert(awayLine,homeLine,lineType) {
+
+      //get implied prob with vig
+      var homeImpliedProb = getImpliedProb(awayLine);
+      var awayImpliedProb = getImpliedProb(homeLine);
+
+      //calculate implied prob without vig
+      var noVigAwayImplied = awayImpliedProb / (homeImpliedProb + awayImpliedProb)
+      var noVigHomeImplied = homeImpliedProb / (homeImpliedProb + awayImpliedProb)
+
+      //calculate line based on implied prob
+      var noVigAwayLineUSA = impliedToAmerican(noVigAwayImplied);
+      var noVigHomeLineUSA = impliedToAmerican(noVigHomeImplied);
+
+      var noVigAwayLineDecimal = impliedToDecimal(noVigAwayImplied).toFixed(2);
+      var noVigHomeLineDecimal = impliedToDecimal(noVigHomeImplied).toFixed(2);
+
+      var noVigAwayLineFractional = impliedToFractional(noVigAwayImplied);
+      var noVigHomeLineFractional = impliedToFractional(noVigHomeImplied);
+      // var noVigAwayLineFractional = new Fraction(impliedToFractional(noVigAwayImplied)).toString();
+      // var noVigHomeLineFractional = new Fraction(impliedToFractional(noVigHomeImplied)).toString();
+
+      // console.log("implied prob of away ",noVigAwayImplied);
+      // console.log("implied prob of home ",noVigHomeImplied);
+      //
+      // console.log("no vig american away line ",noVigAwayLineUSA);
+      // console.log("no vig american home line ",noVigHomeLineUSA);
+      //
+      // console.log("no vig decimal away line ",noVigAwayLineDecimal);
+      // console.log("no vig decimal home line ",noVigHomeLineDecimal);
+      //
+      // console.log("no vig fractional away line ",noVigAwayLineFractional);
+      // console.log("no vig fractional home line ",noVigHomeLineFractional);
+
+      switch(lineType){
+        case "awayImplied": return noVigAwayImplied;
+        case "homeImplied": return noVigHomeImplied;
+        //case "awayUsaWithJuice": return awayUsaWithJuice; break;
+        //case "homeUsaWithJuice": return homeUsaWithJuice;
+        //case "awayDecimalWithJuice": return awayDecimalWithJuice;
+        //case "homeDecimalWithJuice": return homeDecimalWithJuice;
+        //case "awayFractionalWithJuice": return awayFractionalWithJuice;
+        //case "homeFractionalWithJuice": return homeFractionalWithJuice;
+        case "awayUsaNoJuice": return noVigAwayLineUSA;
+        case "homeUsaNoJuice": return noVigHomeLineUSA;
+        case "awayDecimalNoJuice": return noVigAwayLineDecimal;
+        case "homeDecimalNoJuice": return noVigAwayLineDecimal;
+        case "awayFractionalNoJuice": return noVigAwayLineFractional;
+        case "homeFractionalNoJuice": return noVigHomeLineFractional;
+      }
+
+}
+
+
+function getImpliedProb(line){
+
+        var impliedProb = 0;
+        line = Number(line);
+
+        if (Math.abs(line)==100)
+            impliedProb = .5
+        else if (line < 0)
+        {
+            impliedProb = Math.abs(line)/(100 - line)
+        }
+        else if (line > 100)
+        {
+            impliedProb = 100/(line+100);
+        }
+        //console.log("implied prob: " + impliedProb);
+        return impliedProb;
+};
+
+function impliedToAmerican(implied){
+
+    var odds = 100;
+
+    if (implied >= .5)
+        odds = Math.round(implied/(1-implied)*-100)
     else
-    {
-      var finalAnswer = evaluateExpression(runningInput);
-      document.querySelector('.calcDisplayText').textContent =finalAnswer;
-      runningInput = finalAnswer;
-    }
-    console.log("running input ",runningInput);
+        odds = Math.round((1-implied)/implied*100)
+
+    return odds;
+};
+
+function impliedToDecimal(implied){
+    return 1/implied ;
 }
 
-function evaluateExpression(eq) {
-
-  //replace '-' with '_'
-  eq = eq.replace(/-/g,"_");
-  console.log(eq);
-
-  var totalOperations=0;
-
-  for (i in eq){
-    switch (eq[i]){
-      case "*": totalOperations++; break;
-      case "/": totalOperations++; break;
-      case "_": totalOperations++; break;
-      case "+": totalOperations++; break;
-    }
-  }
-
-  //ship the equation off for parsing/evaluating
-  for (var i=0; i < totalOperations; i++)
-    eq = evaluateOneExpression(eq);
-
-
-  //change _ back to -
-  eq = eq.replace(/_/g,"-");
-
-  return eq;
-
+function impliedToFractional(implied){
+    return 1/implied-1;
 }
 
 
-function evaluateOneExpression(eq){
 
-  console.log("BEGINNING EQUATION ",eq);
-
-  var opArray = [];
-  var multiplyIndex = eq.search(RegExp("\\*"));
-  var addIndex = eq.search(RegExp("\\+"));
-  var subtractIndex = eq.search(RegExp("\\_"));
-  var divideIndex = eq.search(RegExp("\/"));
-  var startIndex;
-  var activeIndex;
-  var endIndex;
-
-  //create an array identifying the position number of the first of any math operation
-  for (i in eq){
-    switch (eq[i]){
-      case "*": opArray.push(i); break;
-      case "/": opArray.push(i); break;
-      case "_": opArray.push(i); break;
-      case "+": opArray.push(i); break;
-    }
-  }
-
-  //determine which operation will come first
-  switch (true){
-    case multiplyIndex != -1: activeIndex=multiplyIndex; break;
-    case divideIndex != -1: activeIndex=divideIndex; break;
-    case addIndex != -1: activeIndex=addIndex; break;
-    case subtractIndex != -1: activeIndex=subtractIndex; break;
-  }
-
-  //extract the two numbers in the highest math operation
-  for (i in opArray)
-  {
-    if (opArray[i] > activeIndex)
-    {
-      endIndex = opArray[i];
-      break;
-    }
-    else
-      endIndex = eq.length;
-
-    if (opArray[i] < activeIndex)
-      startIndex = Number(opArray[i])+Number(1);
-    else if (!startIndex)
-      startIndex = 0;
-  }
-
-
-  //evaluate the current expression depending on the highest ranking operation
-  //this becomes a "new section" in the user's input
-  switch (eq[activeIndex]){
-    case "*": var newSection = eq.substring(startIndex,activeIndex)*eq.substring(activeIndex+1,endIndex); break;
-    case "/": var newSection = eq.substring(startIndex,activeIndex)/eq.substring(activeIndex+1,endIndex); break;
-    case "_": var newSection = eq.substring(startIndex,activeIndex)-eq.substring(activeIndex+1,endIndex); break;
-    case "+": var newSection = Number(eq.substring(startIndex,activeIndex))+Number(eq.substring(activeIndex+1,endIndex)); break;
-  }
-
-  // recreate modified user input: e.g. 3+5*100-5 becomes 3+500-5
-  var newBeginning = eq.substring(0,startIndex);
-  var newEnding = eq.substring(endIndex,eq.length);
-  var newEquation = newBeginning+newSection+newEnding;
-
-  return newEquation;
-
-}
+  // console.log(
+  //
+  //    awayImplied,
+  //    homeImplied,
+  //    awayUsaWithJuice,
+  //    homeUsaWithJuice,
+  //    awayDecimalWithJuice,
+  //    homeDecimalWithJuice,
+  //    awayFractionalWithJuice,
+  //    homeFractionalWithJuice,
+  //    awayUsaNoJuice,
+  //    homeUsaNoJuice,
+  //    awayDecimalNoJuice,
+  //    homeDecimalNoJuice,
+  //    awayFractionalNoJuice,
+  //    homeFractionalNoJuice
+  //
+  //
+  //
+  // )
+  //
