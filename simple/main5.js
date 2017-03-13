@@ -148,7 +148,7 @@ function convert(awayLine,homeLine,lineType) {
         case "awayUsaNoJuice": return noVigAwayLineUSA;
         case "homeUsaNoJuice": return noVigHomeLineUSA;
         case "awayDecimalNoJuice": return noVigAwayLineDecimal;
-        case "homeDecimalNoJuice": return noVigAwayLineDecimal;
+        case "homeDecimalNoJuice": return noVigHomeLineDecimal;
         // case "awayFractionalNoJuice": return noVigAwayLineFractional;
         // case "homeFractionalNoJuice": return noVigHomeLineFractional;
       }
